@@ -10,6 +10,7 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/gestor-gastos/app/query"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -32,6 +33,7 @@ func ExecuteAPI() {
 
 	gin.DefaultWriter = io.MultiWriter(file)
 	gin.DisableConsoleColor()
+	// gin.SetMode(gin.ReleaseMode)
 
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
@@ -42,10 +44,12 @@ func ExecuteAPI() {
 		ExposeHeaders:    []string{"Content-Length"},
 	}))
 
-	// group := router.Group("/api")
+	group := router.Group("/api")
+	initializaAPI(group)
 
+	port := ConfigPort()
 	s := &http.Server{
-		Addr:           fmt.Sprintf(":%d", ConfigPort()),
+		Addr:           fmt.Sprintf(":%d", port),
 		Handler:        router,
 		ReadTimeout:    2 * time.Minute,
 		WriteTimeout:   2 * time.Minute,
@@ -53,7 +57,7 @@ func ExecuteAPI() {
 	}
 
 	go func() {
-		logrus.Infof("Serving api at http://127.0.0.1:%d", ConfigPort())
+		logrus.Infof("Serving api at http://127.0.0.1:%d", port)
 		if err := s.ListenAndServe(); err != http.ErrServerClosed {
 			logrus.Error(err)
 		}
@@ -75,4 +79,8 @@ func ExecuteAPI() {
 	case <-ctx.Done():
 		logrus.Info("Server down.")
 	}
+}
+
+func initializaAPI(router *gin.RouterGroup) {
+	router.GET("/listIngresos", query.ListIngresos)
 }

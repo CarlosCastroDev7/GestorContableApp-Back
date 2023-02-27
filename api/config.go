@@ -15,7 +15,7 @@ func ExistingFile(name string) bool {
 }
 
 func ConfigPort() int {
-	Port := viper.GetInt("Port")
+	Port := viper.GetInt("Microservice.Port")
 
 	if Port == 0 {
 		log.Println("No se encontro puerto, se usara el puerto 7070")

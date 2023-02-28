@@ -10,6 +10,7 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/gestor-gastos/app/mutation"
 	"github.com/gestor-gastos/app/query"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -83,4 +84,5 @@ func ExecuteAPI() {
 
 func initializaAPI(router *gin.RouterGroup) {
 	router.GET("/listIngresos", query.ListIngresos)
+	router.POST("/insertIngresos", mutation.InsertIngresos)
 }

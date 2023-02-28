@@ -38,6 +38,20 @@ func init() {
 
 	rootCmd.AddCommand(versionMicroServer)
 	rootCmd.AddCommand(servicesMicroServer)
+
+	// Se realiza la validacion de si el archivo de ingresos y gastos esta creado, sino se crea
+	if _, err := os.Stat("./JSONS/ingresos.json"); os.IsNotExist(err) {
+		err := os.Mkdir("./JSONS", 0666)
+		if err != nil {
+			fmt.Println("No es posible crear la carpeta de JSONS", err)
+			os.Exit(1)
+		}
+		err = os.WriteFile("./JSONS/ingresos.json", []byte("[]"), 0666)
+		if err != nil {
+			fmt.Println("No es posible crear el archivo y escribir json", err)
+			os.Exit(1)
+		}
+	}
 }
 
 var versionMicroServer = &cobra.Command{

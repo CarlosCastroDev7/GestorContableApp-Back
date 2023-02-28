@@ -1,4 +1,4 @@
-package query
+package mutation
 
 import (
 	"encoding/json"
@@ -10,28 +10,39 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func ListIngresos(ctx *gin.Context) {
+func InsertIngresos(ctx *gin.Context) {
+
+	var resp, listIngresos []models.ListIngresosType
+
+	err := ctx.ShouldBindJSON(&resp)
+	if err != nil {
+		log.Printf("Error al obtener el JSON %s\n", err)
+		ctx.JSON(http.StatusNotAcceptable, gin.H{
+			"Error": err,
+		})
+	}
 
 	archivo, err := os.ReadFile("./JSONS/ingresos.json")
 	if err != nil {
-		log.Println(err)
+		log.Printf("Error al leer el archivo %s\n", err)
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"Error": err,
 		})
 	}
 
-	var listIngresos []models.ListIngresosType
 	err = json.Unmarshal(archivo, &listIngresos)
 	if err != nil {
-		log.Printf("Error leyendo fichero: %s\n", err)
+		log.Printf("Error al extrar la informacion %s\n", err)
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"Error": err,
 		})
 	}
 
+	listIngresos = append(listIngresos, resp...)
+
 	datos, err := json.Marshal(listIngresos)
 	if err != nil {
-		log.Printf("Error leyendo fichero: %s\n", err)
+		log.Printf("Error generando el string json encoding %s\n", err)
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"Error": err,
 		})
@@ -39,11 +50,12 @@ func ListIngresos(ctx *gin.Context) {
 
 	err = os.WriteFile("./JSONS/ingresos.json", datos, 0222)
 	if err != nil {
-		log.Println(err)
+		log.Printf("Error al escribir el archivo de ingresos %s\n", err)
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"Error": err,
 		})
 	}
 
 	ctx.JSON(http.StatusOK, listIngresos)
+
 }
